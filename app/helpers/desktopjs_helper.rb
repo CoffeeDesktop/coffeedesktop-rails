@@ -1,0 +1,2 @@
+module DesktopjsHelper
+end

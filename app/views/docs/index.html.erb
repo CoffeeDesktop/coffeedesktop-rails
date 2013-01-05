@@ -1,38 +1,29 @@
-  <body data-spy="scroll" data-target=".bs-docs-sidebar">
 
-    <!-- Navbar
-    ================================================== -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="/">Desktop.js</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active">
-                <a href="/">Home</a>
-              </li>
-              <li class="">
-                <a href="#">About</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+<script type="text/javascript">
+var Desktopjs;
+var Desktopjs_element = ".masthead"
+function trydesktopjs()
+{
+$(".masthead .container").fadeOut();
+$(".navbar").animate({marginTop: "-40px"})
+$(".masthead").stop().animate({padding: "0", height: "100%"},500,function() {
+    $(".bs-docs-social").hide();
+    $("#about").hide();
+    $("footer").hide();
+    Desktopjs = new $.desktopjs();
+  });
 
+}
+
+
+</script>
 <div class="jumbotron masthead">
   <div class="container">
     <h1>Desktop.js</h1>
     <p>Move your desktop feel to the browser</p>
     <p class="crazy">Yes, the idea of moving desktop feel into website is crazy, but unfortunately it's awesome!<br>And guess WHAT!... It's SPA!</p>
     <p>
-      <a href="#" class="btn btn-primary btn-large" >I WANT TO TRY!</a>
-      <p class="oops">Ooops... this button doesn't work now but i keep it because it's cool</p>
+      <a href="#" onclick="trydesktopjs();return false;" class="btn btn-primary btn-large" >I WANT TO TRY!</a>
     </p>
      </div>
 </div>
@@ -56,7 +47,7 @@
   </div>
 </div>
 
-<div class="container">
+<div id="about" class="container">
 
   <div class="marketing">
 
@@ -86,25 +77,5 @@
 
 </div>
 
-
-
-    <!-- Footer
-    ================================================== -->
-    <footer class="footer">
-      <div class="container">
-        Oh look at me ... Im the footer! :D did you notice me?
-      </div>
-    </footer>
-
-
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
-    <script src="/assets/jquery-1.8.3.min.js"></script>
-    <script src="/assets/bootstrap.js"></script>
-    <script src="/assets/google-code-prettify/prettify.js"></script>
-</body> 
 
 
