@@ -6,7 +6,7 @@ class DesktopjsController < ApplicationController
 	end
 
 	def apps
-		@apps = ['sa']
+		@apps = ['sa', 'ircgatewayapp']
 		render  :json => @apps
 	end
 

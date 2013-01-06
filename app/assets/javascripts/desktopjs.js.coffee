@@ -4,6 +4,7 @@
 #= require jquery-1.8.3.min
 #= require jquery.json-2.3.min
 #= require jquery.windows-engine
+#= require jquery.jqdock
 #= require jquery.hotkeys
 #= require uuid
 #= require jstorage.min
@@ -15,7 +16,11 @@
 class Templates
   constructor: ->
     @desktop ="<div id='desktop' class='container'>
-  <form id='run_dialog_form'><input type='text' id='command'></form><div id='desktop_icons'></div></div>"
+  <form id='run_dialog_form'><input type='text' id='command'></form>
+  <div id='desktop_icons'></div>
+  <ul id='dock' style='display:none'>
+  </ul>
+    </div>"
 
 
 
@@ -63,8 +68,9 @@ class UseCase
     window.Desktopjs.app_run(app)
 
 class Glue
-  constructor: (@useCase, @gui, @storage, @templates, @backend)->
+  constructor: (@useCase, @gui, @storage, @templates, @backend,@app)->
     Before(@useCase, 'start', => @gui.render_desk(@templates.desktop))
+    Before(@app, 'app_add', (name,app) => @gui.dock_append(name,app))
 
     After(@gui, 'render_desk', => @gui.set_bindings())
     After(@useCase, 'start', => @backend.fetch_apps())
@@ -86,6 +92,9 @@ class Gui
 
   run_command: (cmd) =>
 
+  dock_start: ->
+    $('#dock').jqDock(window.Desktopjs.dock_settings)
+
   set_bindings: ->
     console.log("setting bindings")
     $(document).bind('keydown', 'alt+r', @show_run_dialog)
@@ -94,6 +103,18 @@ class Gui
       $("#command").val("")
       @run_command(app)
       false
+    )
+
+  dock_append: (name,app) ->
+    uuid = UUIDjs.randomUI48()
+    icon = app.icon
+    icon = "app.png" if !icon
+    html = "<li><img id='app"+uuid+"' src='/assets/icons/"+icon+"' alt='"+app.fullname+"' title='"+app.fullname+"' class='dockItem' /></li>"
+    $('#dock').jqDock('destroy')
+    $('#dock').append(html)
+    $('#dock').jqDock(window.Desktopjs.dock_settings);
+    $("#app"+uuid).click(() =>
+      @run_command(name)
     )
 
   render_desk: (template) ->
@@ -120,12 +141,13 @@ class @DesktopjsApp
     @app = {}
     @process = {}
     @process_id = 0
+    @dock_settings =   {labels: 'tc'}
     useCase      = new UseCase()
     gui          = new Gui()
     localStorage = new LocalStorage("desktopjs")
     templates    = new Templates()
     backend      = new Backend()
-    glue         = new Glue(useCase, gui, localStorage,templates, backend)
+    glue         = new Glue(useCase, gui, localStorage,templates, backend,this)
     useCase.start()
 
 

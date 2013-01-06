@@ -1,9 +1,5 @@
 #Warning: This code contains ugly this
 #Warning: You have been warned about this 
-class Templates
-  main: ->
-    "Oh...Hai.
-     This is sample app! :D"
 
 class LocalStorage
   constructor: (@namespace) ->
@@ -31,8 +27,8 @@ class UseCase
     
 
 class Glue
-  constructor: (@useCase, @gui, @storage, @app, @templates)->
-    Before(@useCase, 'start', => @gui.create_window(@app.fullname,"main",@templates.main())) #create main window
+  constructor: (@useCase, @gui, @storage, @app)->
+    Before(@useCase, 'start', => @gui.create_window(@app.fullname)) #create main window
 
 
     #After(@gui, 'create_window', => @gui.window_set("main"))
@@ -40,34 +36,35 @@ class Glue
     LogAll(@gui)
 
 class Gui
-  create_window: (title=false,id=false,template) =>
+  create_window: (title=false,id=false) =>
     rand=UUIDjs.randomUI48()
     id=UUIDjs.randomUI48() if !id #if undefined just throw sth random
     title = "You ARE LAZY" if !title #if undefined set sth stupid
-    divid = id+"-"+rand
-    $.newWindow({id:divid,title:title})
-    $.updateWindowContent(divid,template);
-
+    divid = rand+"-"+id
+    $.newWindow({id:divid,title:title,type:"iframe", width:647, height:400})
+    $.updateWindowContent(divid,'<iframe src="http://webchat.freenode.net?channels=desktop-js&uio=d4" width="647" height="400"></iframe>');
   constructor: ->
 
-class @SampleApp
-  fullname = "Sample Application"
-  description = "Oh ... you just read app description."
+class @IrcGatewayApp
+  fullname = "Irc Gateway"
+  description = "Irc Gateway to freenode"
+  @icon = "qwebircsmall.png"
   @fullname = fullname
-  @description = description 
-  constructor: (id) ->
+  @description = description
+  constructor: (id, params)->
     @id = id
     @windows = []
     @fullname = fullname
     @description = description
+    @fullname = "Irc Gateway"
+    @description = "Irc Gateway to freenode"
     useCase      = new UseCase()
     gui          = new Gui()
     localStorage = new LocalStorage("desktopjs")
-    templates    = new Templates()
     #probably this under this line is temporary this because this isnt on the path of truth
-    glue         = new Glue(useCase, gui, localStorage,this,templates)
+    glue         = new Glue(useCase, gui, localStorage,this)
     #                                                  ^ this this is this ugly this
 
     useCase.start()
 
-window.Desktopjs.app_add('sa',@SampleApp)
+window.Desktopjs.app_add('irc',@IrcGatewayApp)
