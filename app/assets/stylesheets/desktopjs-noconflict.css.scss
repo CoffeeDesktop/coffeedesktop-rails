@@ -38,3 +38,39 @@
 	cursor:pointer; 
 	padding:0 1px;
 }
+
+#loading_box {
+	display:none;
+	width: 300px;
+	padding:10px;
+	background: rgba(0, 0, 0, 0.4);
+	position: fixed;
+	right: 10px;
+	top: 50px;
+	border-radius: 5px;
+	color:#fff;
+	text-align:left;
+
+}
+
+#chat_window {
+	position:relative;
+	margin:0;
+	width:100%;
+	height:100%;
+	table-layout: fixed;
+
+}
+#chat {
+	overflow:auto;
+	height:100%;
+
+}
+.msg_input_box {
+	height:20px;
+
+}
+.pusher_chat_title {
+	
+	height:20px;
+}

@@ -6,9 +6,23 @@ class DesktopjsController < ApplicationController
 	end
 
 	def apps
-		@apps = ['sa', 'ircgatewayapp']
+		@apps = ['sa', 'ircgatewayapp', 'pusher_chat']
 		render  :json => @apps
 	end
+
+	#Watch out lazy developer here
+	#im so lazy that i will put api of pusher_chat here ... nobody can't stop me!
+
+	def pch_post 
+			data = {"nick" => params[:nick],"msg" => params[:msg], "date" =>Time.new.to_s}
+			Pusher['pusher_chat'].trigger('data-changed',
+			data.to_json) 
+			render :text => data.to_json
+	end
+
+
+
+	# end of pusher_chat :D
 
 	private
 

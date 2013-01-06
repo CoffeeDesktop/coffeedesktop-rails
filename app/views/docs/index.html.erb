@@ -6,7 +6,7 @@ function trydesktopjs()
 {
 $(".masthead .container").fadeOut();
 $(".navbar").animate({marginTop: "-40px"})
-$(".masthead").stop().animate({padding: "0", height: "100%"},500,function() {
+$(".masthead").stop().animate({padding: "0", height: "100%"},300,function() {
     $(".bs-docs-social").hide();
     $("#about").hide();
     $("footer").hide();
@@ -17,6 +17,10 @@ $(".masthead").stop().animate({padding: "0", height: "100%"},500,function() {
 
 
 </script>
+<script src="http://js.pusherapp.com/1.8/pusher.min.js"></script>
+
+
+
 <div class="jumbotron masthead">
   <div class="container">
     <h1>Desktop.js</h1>

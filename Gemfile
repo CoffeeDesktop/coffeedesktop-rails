@@ -7,6 +7,7 @@ gem 'rails', '3.2.9'
 gem 'jasminerice'
 gem 'devise'
 gem 'handlebars_assets'
+gem 'pusher'
 group :development, :test do
   gem "sqlite3"
 end

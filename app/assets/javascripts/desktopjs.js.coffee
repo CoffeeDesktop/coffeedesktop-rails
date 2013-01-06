@@ -16,6 +16,7 @@
 class Templates
   constructor: ->
     @desktop ="<div id='desktop' class='container'>
+      <div id='loading_box'><h3>Loading Desktopjs..</h3></div>
   <form id='run_dialog_form'><input type='text' id='command'></form>
   <div id='desktop_icons'></div>
   <ul id='dock' style='display:none'>
@@ -28,11 +29,14 @@ class Backend
   #BACKEND DEVELOPER LOOK AT ME.... LOOK AT ME!
   constructor: ->
 
+  fetch_app: (app) ->
+    console.log("Fetching app " + app)
+    $.get("/assets/"+app+".js")
+
   fetch_apps: ->
     apps = $.getJSON("/desktopjs/apps", (apps) =>
-      apps.every (app)-> 
-        console.log("Fetching app " + app)
-        $.get("/assets/"+app+".js")
+      apps.every (app) => 
+        @fetch_app(app)
     )
 
 class LocalStorage
@@ -56,13 +60,8 @@ class LocalStorage
 
 class UseCase
   constructor: ->
-    
-  start: =>
-    window.apps = new Array()
 
-  fetch_apps: =>
-    #/assets/sa.js
-    $.get("/assets/sa.js");
+  start: =>
 
   run_command: (app) =>
     window.Desktopjs.app_run(app)
@@ -71,17 +70,32 @@ class Glue
   constructor: (@useCase, @gui, @storage, @templates, @backend,@app)->
     Before(@useCase, 'start', => @gui.render_desk(@templates.desktop))
     Before(@app, 'app_add', (name,app) => @gui.dock_append(name,app))
+    Before(@backend, 'fetch_app', (app) => @gui.log_fetch_app(app))
 
+    After(@gui, 'render_desk', => @gui.show_loading())
     After(@gui, 'render_desk', => @gui.set_bindings())
     After(@useCase, 'start', => @backend.fetch_apps())
     After(@gui, 'run_command', (app) => @useCase.run_command(app))
     After(@useCase, 'run_command', => @gui.hide_run_dialog())
+    After(@backend, 'fetch_apps', => @gui.hide_loading())
 
     LogAll(@useCase)
     LogAll(@gui)
 
 class Gui
   constructor: ->
+
+  show_loading: ->
+    $("#loading_box").fadeIn()
+
+  hide_loading: ->
+    $("#loading_box").fadeOut()
+
+  log_loading: (msg)->
+    $("#loading_box").append("<li>"+msg+"</li>")
+
+  log_fetch_app: (app) ->
+    @log_loading("Fetching app: "+app)
 
   show_run_dialog: ->
     $("#run_dialog_form").fadeIn()
@@ -97,6 +111,7 @@ class Gui
 
   set_bindings: ->
     console.log("setting bindings")
+    @log_loading("setting bindings")
     $(document).bind('keydown', 'alt+r', @show_run_dialog)
     $('#run_dialog_form').submit( () =>
       app =$("#command").val()
