@@ -1073,3 +1073,52 @@ form.bs-docs-example {
   font-size:25px;
 
 }
+#github_logo {
+width: 300px;
+
+}
+#github {
+position: absolute;
+right: 0px;
+width:300px;
+height:200px;
+margin-top: -200px;
+z-index: 3;
+background: url("https://raw.github.com/github/media/master/octocats/octocat.png");
+background-size: 300px auto;
+}
+#octocat_talk {
+  position: absolute;
+left: 120px;
+  margin-top: 0px;
+background-color: #FFF;
+background-image: linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
+background-image: -o-linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
+background-image: -moz-linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
+background-image: -webkit-linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
+background-image: -ms-linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
+
+background-image: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0.48, rgb(230,230,230)),
+  color-stop(0.74, rgb(255,255,255))
+);
+box-shadow: 0 0px 1px #909090;
+font-size: 12px;
+padding: 10px;
+border: 1px solid #FFF;
+border-radius: 5px;
+color:#000;
+text-decoration: none;
+}
+#octocat_talk_triangle_l {
+position: absolute;
+bottom: -20px;
+width: 0px;
+height: 0;
+border-left: 10px solid transparent;
+border-right: 10px solid transparent;
+border-top: 20px solid rgb(230,230,230);
+}

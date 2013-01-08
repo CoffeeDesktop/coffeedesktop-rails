@@ -133,7 +133,7 @@ class @PusherChatApp
     @windows = {}
     @fullname = fullname
     @description = description
-    pusher = new PusherBindings('c69a5b636526c8cde52a')
+    pusher = new PusherBindings('dc82e8733c54f74df8d3')
     useCase      = new UseCase()
     gui          = new Gui()
     localStorage = new LocalStorage("desktopjs")
