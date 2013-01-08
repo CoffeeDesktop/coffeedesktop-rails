@@ -1089,7 +1089,8 @@ background-size: 300px auto;
 }
 #octocat_talk {
   position: absolute;
-left: 120px;
+left: -70px;
+top:80px;
   margin-top: 0px;
 background-color: #FFF;
 background-image: linear-gradient(bottom, rgb(230,230,230) 48%, rgb(255,255,255) 74%);
@@ -1115,10 +1116,11 @@ text-decoration: none;
 }
 #octocat_talk_triangle_l {
 position: absolute;
-bottom: -20px;
+bottom: 5px;
+right:-20px;
 width: 0px;
 height: 0;
-border-left: 10px solid transparent;
-border-right: 10px solid transparent;
-border-top: 20px solid rgb(230,230,230);
+border-top: 10px solid transparent;
+border-left: 20px solid rgb(230,230,230);
+border-bottom: 10px solid transparent;;
 }
