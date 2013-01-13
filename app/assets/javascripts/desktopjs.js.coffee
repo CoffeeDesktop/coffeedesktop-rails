@@ -64,7 +64,6 @@ class UseCase
   start: =>
 
   run_command: (app) =>
-    window.Desktopjs.app_run(app)
 
 class Glue
   constructor: (@useCase, @gui, @storage, @templates, @backend,@app)->
@@ -77,6 +76,7 @@ class Glue
     After(@useCase, 'start', => @backend.fetch_apps())
     After(@gui, 'run_command', (app) => @useCase.run_command(app))
     After(@useCase, 'run_command', => @gui.hide_run_dialog())
+    After(@useCase, 'run_command', (app) => @app.app_run(app))
     After(@backend, 'fetch_apps', => @gui.hide_loading())
 
     LogAll(@useCase)

@@ -1,5 +1,3 @@
-#Warning: This code contains ugly this
-#Warning: You have been warned about this 
 #= require gui
 #= require glue
 #= require localstorage
@@ -7,8 +5,8 @@
 
 class Templates
   main: ->
-    "Oh...Hai.
-     This is sample app! :D"
+    "Oh ... look at me<br>
+    I'm made my first coffee for desktopjs!"
 
 class LocalStorage extends @LocalStorageClass
 
@@ -19,11 +17,11 @@ class Gui extends @GuiClass
 class Glue extends @GlueClass
   constructor:  (@useCase, @gui, @storage, @app, @templates) ->
     super
-#    LogAll(@useCase)
+#    LogAll(@useCase) # unhash if you want debug
 #    LogAll(@gui)
 
-class @SampleApp
-  fullname = "Sample Application"
+class @MyApp
+  fullname = "My Application"
   description = "Oh ... you just read app description."
   @fullname = fullname
   @description = description 
@@ -33,12 +31,12 @@ class @SampleApp
     @description = description
     useCase      = new UseCase()
     gui          = new Gui()
-    localStorage = new LocalStorage("desktopjs")
+    localStorage = new LocalStorage("myapp")
     templates    = new Templates()
-    #probably this under this line is temporary this because this isnt on the path of truth
+#probably this under this line is temporary this because this isnt on the path of truth
     glue         = new Glue(useCase, gui, localStorage,this,templates)
     #                                                  ^ this this is this ugly this
 
     useCase.start()
 
-window.Desktopjs.app_add('sa',@SampleApp)
+window.Desktopjs.app_add('ma',@MyApp)
