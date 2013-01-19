@@ -5,6 +5,9 @@
 #= require localstorage
 #= require usecase
 
+fullname = "Pusher Chat"
+description = "Pusher Chat"
+
 class Templates
   main: ->
     "<form id='nick_form'>
@@ -28,71 +31,9 @@ class Backend
   post_data: (data) ->
     $.post("/desktopjs/pch_post", data );
 
-class LocalStorage extends @LocalStorageClass
-
-class UseCase extends @UseCaseClass
-  post_msg: (data) ->
-
-  send_msg: (msg) ->
-    @post_msg({'nick':@nick, 'msg',msg})
-
-  start_chat: (@nick) ->
-    @set_chat_in_window(@windows[0])
-
-  set_chat_in_window: (window) ->
-
-  new_msg:(data) ->
-    @new_message_in_chat_window(@windows[0], data.nick, data.msg, data.date)
-
-  new_message_in_chat_window: (window, nick, msg, date) ->
-
-  bindings: ->
-    @set_bindings(@windows[0])
-
-  set_bindings: (window) ->
-
-class Glue extends @GlueClass
-  constructor:  (@useCase, @gui, @storage, @app, @templates, @backend,@pusher) ->
-    super
-    Before(@useCase, 'set_chat_in_window', (window) => @gui.set_chat_window_content(window,@templates.chat_window()))
-    After(@gui, 'create_window', => @useCase.bindings())
-    After(@useCase, 'set_bindings',(window) => @gui.set_bindings(window))
-    After(@useCase, 'set_chat_in_window', (window) => @gui.set_chat_bindings(window))
-    After(@gui, 'start_chat', (nick) => @useCase.start_chat(nick))
-    After(@gui, 'send_msg', (msg) => @useCase.send_msg(msg))
-    After(@useCase, 'post_msg', (data) => @backend.post_data(data))
-    After(@pusher, 'update', (data) => @useCase.new_msg(data))
-    After(@useCase, 'new_message_in_chat_window', (window, nick, msg,date) => @gui.append_msg(window, nick, msg,date))
-#    LogAll(@useCase)
-#    LogAll(@gui)
-
-class Gui extends @GuiClass
-  start_chat: (nick) ->
-
-  set_chat_window_content: (window,template) ->
-    $.updateWindowContent(window,template);
-
-  send_msg: (msg) ->
-
-  set_chat_bindings: (window) ->
-    $("#"+window+" #msg_input").submit( () =>
-      msg = $("#"+window+" #msg").val()
-      @send_msg(msg)
-      $("#"+window+" #msg").val("")
-      false
-    )
-
-  set_bindings: (window) ->
-    $("#"+ window+ " #nick_form").submit( () =>
-      nick = $("#"+ window+ " #nick").val()
-      @start_chat(nick)
-      false
-    )
-  append_msg: (window, nick, msg, date) ->
-    $("#"+ window+ " #chat").append("<span><b>"+nick+"</b>(@"+date+"): "+msg+"<hr>")
-
-class PusherBindings 
+class PusherAdapter 
   update: (data) ->
+    console.warn(data)
 
   constructor: (key) ->
     pusher = new Pusher(key);
@@ -102,28 +43,84 @@ class PusherBindings
       @update(data)
     )
 
+class LocalStorage extends @LocalStorageClass
+
+class UseCase extends @UseCaseClass
+  constructor: (@gui, @backend) ->
+    super
+
+  send_msg: (msg) ->
+    @backend.post_data({'nick':@nick, 'msg',msg})
+
+  start_chat: (@nick) ->
+    @gui.set_chat_window_content()
+
+  new_msg_received:(data) -> 
+    @gui.append_msg(data.nick, data.msg, data.date)
+
+class Glue extends @GlueClass
+  constructor:  (@useCase, @gui, @storage, @app, @pusher) ->
+    super
+    After(@gui, 'start_chat', (nick) => @useCase.start_chat(nick))
+    After(@gui, 'send_msg', (msg) => @useCase.send_msg(msg))
+    After(@pusher, 'update', (data) => @useCase.new_msg_received(data))
+    #LogAll(@useCase)
+    #LogAll(@gui)
+
+class Gui extends @GuiClass
+  set_chat_window_content: () ->
+    $.updateWindowContent(@div_id, @templates.chat_window());
+    @set_chat_bindings()
+
+  set_bindings: ->
+    $("#"+ @div_id+ " #nick_form").submit( () =>
+      nick = $("#"+ @div_id+ " #nick").val()
+      @start_chat(nick)
+      false
+    )
+
+  set_chat_bindings: () ->
+    msg_element = @element.find("#msg_input")
+    msg_input = msg_element.find("#msg")
+    msg_element.submit( () =>
+      msg = msg_input.val()
+      @send_msg(msg)
+      msg_input.val("")
+      false
+    )
+
+  append_msg: (nick, msg, date) ->
+    $("#"+@div_id+ " #chat").append("<span><b>"+nick+"</b>(@"+date+"): "+msg+"<hr>")
+
+  #aop shit
+  send_msg: (msg) ->
+  start_chat: (nick) ->
+
+
 class @PusherChatApp
-  fullname = "Pusher Chat"
-  description = "Pusher Chat"
   @fullname = fullname
   @description = description 
   constructor: (id) ->
     @id = id
     @fullname = fullname
     @description = description
-    pusher = new PusherBindings('dc82e8733c54f74df8d3')
-    useCase      = new UseCase()
-    gui          = new Gui()
-    localStorage = new LocalStorage("desktopjs")
+    pusher       = new PusherAdapter('dc82e8733c54f74df8d3')
     templates    = new Templates()
+    gui          = new Gui(templates)
+    localStorage = new LocalStorage("desktopjs")
     backend      = new Backend()
+    useCase      = new UseCase(gui, backend)
     #probably this under this line is temporary this because this isnt on the path of truth
-    glue         = new Glue(useCase, gui, localStorage,this,templates,backend,pusher)
+    glue         = new Glue(useCase, gui, localStorage,@, pusher)
     #                                                  ^ this this is this ugly this
 
     useCase.start()
 
+window.pusher_chat = {}
+window.pusher_chat.UseCase = UseCase
+window.pusher_chat.Gui = Gui
+window.pusher_chat.Templates = Templates
+window.pusher_chat.PusherChatApp = PusherChatApp
+
+
 window.Desktopjs.app_add('pch',@PusherChatApp)
-
-
-

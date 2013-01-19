@@ -2,12 +2,12 @@ Desktopjs-rails
 ===============
 
 ### Warning
-
-This is just an empty rails project so nothing to see here, move along.
-
+This readme is probably out of date.
+check [9reyfox's blog](http://9reyfox.github.com) or follow [@matbaj](http://twitter.com/matbaj)
 
 It's just another awesome framework! :D
 oh ... maybe i will write something more later! :D
+
 
 Why desktopjs-rails
 -------------------
@@ -31,7 +31,11 @@ I'll try to maintain the code without coupling with rails backend, so after read
 
 
 
+License
+-------
 
+Desktopjs and Desktopjs-rails is released under the [MIT License](http://www.opensource.org/licenses/MIT).
 
  
+
 

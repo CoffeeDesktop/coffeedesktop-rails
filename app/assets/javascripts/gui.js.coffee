@@ -1,13 +1,16 @@
 class @GuiClass
-  create_window: (title=false,id=false,template) =>
+  constructor: (@templates) -> 
+
+  create_window: (title=false,id=false) =>
     rand=UUIDjs.randomUI48()
     id=UUIDjs.randomUI48() if !id #if undefined just throw sth random
     title = "You ARE LAZY" if !title #if undefined set sth stupid
-    divid = id+"-"+rand
-    @register_window(divid)
-    $.newWindow({id:divid,title:title})
-    $.updateWindowContent(divid,template);
-
+    @div_id = id+"-"+rand
+    @register_window(@div_id)
+    $.newWindow({id:@div_id,title:title})
+    $.updateWindowContent(@div_id,@templates.main());
+    @element = $("##{@div_id}")
+    @set_bindings()
 
   register_window: (id) ->
 
@@ -18,5 +21,4 @@ class @GuiClass
   close_window: (window) ->
     $.closeWindow(window)
 
-
-  constructor: ->
+  set_bindings: ->

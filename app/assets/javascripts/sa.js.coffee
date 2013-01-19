@@ -17,7 +17,7 @@ class UseCase extends @UseCaseClass
 class Gui extends @GuiClass
 
 class Glue extends @GlueClass
-  constructor:  (@useCase, @gui, @storage, @app, @templates) ->
+  constructor:  (@useCase, @gui, @storage, @app) ->
     super
 #    LogAll(@useCase)
 #    LogAll(@gui)
@@ -32,11 +32,12 @@ class @SampleApp
     @fullname = fullname
     @description = description
     useCase      = new UseCase()
-    gui          = new Gui()
-    localStorage = new LocalStorage("desktopjs")
     templates    = new Templates()
+    gui          = new Gui(templates)
+    localStorage = new LocalStorage("desktopjs")
+    
     #probably this under this line is temporary this because this isnt on the path of truth
-    glue         = new Glue(useCase, gui, localStorage,this,templates)
+    glue         = new Glue(useCase, gui, localStorage,this)
     #                                                  ^ this this is this ugly this
 
     useCase.start()
