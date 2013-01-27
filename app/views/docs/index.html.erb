@@ -1,8 +1,8 @@
 
 <script type="text/javascript">
-var Desktopjs;
-var Desktopjs_element = ".masthead"
-function trydesktopjs()
+var CoffeeDesktop;
+var CoffeeDesktop_element = ".masthead"
+function tryCoffeeDesktop()
 {
 $(".masthead .container").fadeOut();
 $(".navbar").animate({marginTop: "-40px"})
@@ -10,7 +10,7 @@ $(".masthead").stop().animate({padding: "0", height: "100%"},300,function() {
     $(".bs-docs-social").hide();
     $("#about").hide();
     $("footer").hide();
-    Desktopjs = new $.desktopjs();
+    CoffeeDesktop = new $.CoffeeDesktop();
   });
 
 }
@@ -23,30 +23,30 @@ $(".masthead").stop().animate({padding: "0", height: "100%"},300,function() {
 
 <div class="jumbotron masthead">
   <div class="container">
-    <h1>Desktop.js</h1>
+    <h1>CoffeeDesktop</h1>
     <p>Move your desktop feel to the browser</p>
     <p class="crazy">Yes, the idea of moving desktop feel into website is crazy, but unfortunately it's awesome!<br>And guess WHAT!... It's SPA!</p>
     <p>
-      <a href="#" onclick="trydesktopjs();return false;" class="btn btn-primary btn-large" >I WANT TO TRY!</a>
+      <a href="#" onclick="tryCoffeeDesktop();return false;" class="btn btn-primary btn-large" >I WANT TO TRY!</a>
     </p>
      </div>
 </div>
-<a id="github" href="https://github.com/9reyfox/desktopjs-rails"><div id="octocat_talk"><div id="octocat_talk_triangle_l"></div>Find me on github</div></a>
+<a id="github" href="https://github.com/9reyfox/coffeedesktop-rails"><div id="octocat_talk"><div id="octocat_talk_triangle_l"></div>Find me on github</div></a>
 <div class="bs-docs-social">
 
   <div class="container">
     <ul class="bs-docs-social-buttons">
       <li>
-        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=9reyfox&repo=desktopjs-rails&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=9reyfox&repo=coffeedesktop-rails&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
       </li>
       <li>
-        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=9reyfox&repo=desktopjs-rails&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="102px" height="20px"></iframe>
+        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=9reyfox&repo=coffeedesktop-rails&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="102px" height="20px"></iframe>
       </li>
       <li class="follow-btn">
         <a href="https://twitter.com/matbaj" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @matbaj</a>
       </li>
       <li class="tweet-btn">
-        <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://desktopjs.herokuapp.com/" data-count="horizontal">Tweet</a>
+        <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://coffeedesktop.com/" data-count="horizontal">Tweet</a>
       </li>
     </ul>
   </div>
@@ -59,7 +59,7 @@ $(".masthead").stop().animate({padding: "0", height: "100%"},300,function() {
     <div class="row-fluid">
       <div class="span4">
         <h2>Backend independence.</h2>
-        <p>You can use desktop.js with anything which can serve http and exchange data in json</p>
+        <p>You can use CoffeeDesktop with anything which can serve http and exchange data in json</p>
       </div>
       <div class="span4">
         <h2>Single Page Application <a href="http://en.wikipedia.org/wiki/Single-page_application">(?)</a></h2>
@@ -68,7 +68,7 @@ $(".masthead").stop().animate({padding: "0", height: "100%"},300,function() {
       </div>
       <div class="span4">
         <h2>Do your tasks faster</h2>
-        <p>With desktop.js you can do your tasks faster because dividing views into smaller windows make it easier to manage data for example beetween helpdesk thread and service </p>
+        <p>With CoffeeDesktop you can do your tasks faster because dividing views into smaller windows make it easier to manage data for example beetween helpdesk thread and service </p>
       </div>
     </div>
 

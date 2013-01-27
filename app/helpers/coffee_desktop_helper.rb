@@ -1,0 +1,2 @@
+module CoffeeDesktopHelper
+end

@@ -1,4 +1,4 @@
 require 'test_helper'
 
-class DesktopjsHelperTest < ActionView::TestCase
+class CoffeeDesktopHelperTest < ActionView::TestCase
 end

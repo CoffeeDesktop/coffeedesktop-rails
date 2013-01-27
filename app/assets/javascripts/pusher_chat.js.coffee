@@ -29,11 +29,11 @@ class Backend
   constructor: () ->
 
   post_data: (data) ->
-    $.post("/desktopjs/pch_post", data );
+    $.post("/coffeedesktop/pch_post", data );
 
 class PusherAdapter 
   update: (data) ->
-    console.warn(data)
+    #console.warn(data)
 
   constructor: (key) ->
     pusher = new Pusher(key);
@@ -100,6 +100,7 @@ class Gui extends @GuiClass
 class @PusherChatApp
   @fullname = fullname
   @description = description 
+  @icon = "xchat.png"
   constructor: (id) ->
     @id = id
     @fullname = fullname
@@ -107,7 +108,7 @@ class @PusherChatApp
     pusher       = new PusherAdapter('dc82e8733c54f74df8d3')
     templates    = new Templates()
     gui          = new Gui(templates)
-    localStorage = new LocalStorage("desktopjs")
+    localStorage = new LocalStorage("CoffeeDesktop")
     backend      = new Backend()
     useCase      = new UseCase(gui, backend)
     #probably this under this line is temporary this because this isnt on the path of truth
@@ -123,4 +124,4 @@ window.pusher_chat.Templates = Templates
 window.pusher_chat.PusherChatApp = PusherChatApp
 
 
-window.Desktopjs.app_add('pch',@PusherChatApp)
+window.CoffeeDesktop.app_add('pch',@PusherChatApp)

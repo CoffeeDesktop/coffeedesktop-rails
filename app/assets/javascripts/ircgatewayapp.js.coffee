@@ -23,7 +23,7 @@ class Gui extends @GuiClass
     title = "You ARE LAZY" if !title #if undefined set sth stupid
     divid = rand+"-"+id
     $.newWindow({id:divid,title:title,type:"iframe", width:647, height:400})
-    $.updateWindowContent(divid,'<iframe src="http://webchat.freenode.net?channels=desktop-js&uio=d4" width="647" height="400"></iframe>');
+    $.updateWindowContent(divid,'<iframe src="http://webchat.freenode.net?channels=CoffeeDesktop&uio=d4" width="647" height="400"></iframe>');
   constructor: ->
 
 class @IrcGatewayApp
@@ -40,11 +40,11 @@ class @IrcGatewayApp
     @description = "Irc Gateway to freenode"
     useCase      = new UseCase()
     gui          = new Gui()
-    localStorage = new LocalStorage("desktopjs")
+    localStorage = new LocalStorage("CoffeeDesktop")
     #probably this under this line is temporary this because this isnt on the path of truth
     glue         = new Glue(useCase, gui, localStorage,this)
     #                                                  ^ this this is this ugly this
 
     useCase.start()
 
-window.Desktopjs.app_add('irc',@IrcGatewayApp)
+window.CoffeeDesktop.app_add('irc',@IrcGatewayApp)

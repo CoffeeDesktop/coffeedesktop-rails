@@ -4,4 +4,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-DesktopjsRails::Application.load_tasks
+CoffeeDesktopRails::Application.load_tasks

@@ -1,4 +1,4 @@
-class DesktopjsController < ApplicationController
+class CoffeeDesktopController < ApplicationController
 	#before_filter :set_user
 
 	def index
@@ -6,7 +6,7 @@ class DesktopjsController < ApplicationController
 	end
 
 	def apps
-		@apps = ['sa', 'ircgatewayapp', 'pusher_chat']
+		@apps = [ 'sa', 'ircgatewayapp', 'pusher_chat']
 		render  :json => @apps
 	end
 
