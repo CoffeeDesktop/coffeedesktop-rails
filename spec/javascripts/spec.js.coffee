@@ -6,4 +6,5 @@
 # IT IS UNLIKELY THAT YOU WILL NEED TO CHANGE THIS FILE
 #
 #= require jquery
+
 #=require_tree ./

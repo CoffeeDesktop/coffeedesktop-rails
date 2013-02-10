@@ -4,10 +4,10 @@ class @UseCaseClass
 
   start: =>
   
-  register_window: (id) ->
+  registerWindow: (id) ->
     @windows.add(id)
 
   exit: ->
-    close_all_windows(@windows)
+    closeAllWindows(@windows)
 
-  close_all_windows: (windows) ->
+  closeAllWindows: (windows) ->

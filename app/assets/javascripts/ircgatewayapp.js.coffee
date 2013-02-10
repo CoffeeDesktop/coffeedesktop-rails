@@ -9,15 +9,10 @@ class LocalStorage extends @LocalStorageClass
 
 class UseCase extends @UseCaseClass
 
-class Glue
-  constructor: (@useCase, @gui, @storage, @app)->
-    Before(@useCase, 'start', => @gui.create_window(@app.fullname)) #create main window
-#    LogAll(@useCase)
-#    LogAll(@gui)
-
+class Glue extends @GlueClass
 
 class Gui extends @GuiClass
-  create_window: (title=false,id=false,template) =>
+  createWindow: (title=false,id=false) =>
     rand=UUIDjs.randomUI48()
     id=UUIDjs.randomUI48() if !id #if undefined just throw sth random
     title = "You ARE LAZY" if !title #if undefined set sth stupid
@@ -47,4 +42,4 @@ class @IrcGatewayApp
 
     useCase.start()
 
-window.CoffeeDesktop.app_add('irc',@IrcGatewayApp)
+window.CoffeeDesktop.appAdd('irc',@IrcGatewayApp)

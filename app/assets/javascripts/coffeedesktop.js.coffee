@@ -49,7 +49,24 @@ class Backend
   #BACKEND DEVELOPER LOOK AT ME.... LOOK AT ME!
   constructor: ->
     @requetsqueue = []
+    window.addEventListener('online', (e) ->
+      options = {
+        title: 'Network Notification',
+        text: "You are online!",
+        image: '/assets/icons/network-transmit-receive.png'
+      }
+      CoffeeDesktop.notes.addNote(options)
+    , false)
 
+    window.addEventListener('offline', (e) ->
+
+      options = {
+        title: 'Network Notification',
+        text: "You are offline",
+        image: '/assets/icons/network-error.png'
+      }
+      CoffeeDesktop.notes.addNote(options)
+    , false);
     $( document ).ajaxError( (event, jqXHR, ajaxSettings, thrownError) =>
       if (jqXHR.status == 0) 
          msg = 'Not connect.\n Verify Network.'
@@ -57,14 +74,14 @@ class Backend
          msg = 'Requested page not found. [404]'
       else if (jqXHR.status == 500) 
          msg = 'Internal Server Error [500].'
-      else if (exception == 'parsererror') 
+      else if (thrownError == 'parsererror') 
          msg = 'Requested JSON parse failed.'
-      else if (exception == 'timeout') 
+      else if (thrownError == 'timeout') 
          msg = 'Time out error.'
-      else if (exception == 'abort') 
+      else if (thrownError == 'abort') 
          msg = 'Ajax request aborted.'
       else 
-         msg = 'Uncaught Error.\n' + jqXHR.responseText
+         msg = 'Uncaught Error.\n' + thrownError
       options = {
         title: 'Network Notification',
         text: "Can't send post request to #{ajaxSettings.url}.<br>Error:#{msg}",
@@ -72,17 +89,17 @@ class Backend
       }
       request = new Request(ajaxSettings)
       @requetsqueue.push(request)
-      CoffeeDesktop.notes.addnote(options)
+      CoffeeDesktop.notes.addNote(options)
     )
 
-  fetch_app: (app) ->
+  fetchApp: (app) ->
     console.log("Fetching app " + app)
     $.get("/assets/"+app+".js")
 
-  fetch_apps: ->
+  fetchApps: ->
     apps = $.getJSON("/coffeedesktop/apps", (apps) =>
       apps.every (app) => 
-        @fetch_app(app)
+        @fetchApp(app)
     )
 
   post:(url,json) ->
@@ -127,7 +144,7 @@ class UseCase
 
   start: =>
     for desktop_object in @desktop_objects
-      @gui.draw_desktop_object(
+      @gui.drawDesktopObject(
         desktop_object.fullname,
         desktop_object.icon,
         desktop_object.run,
@@ -138,20 +155,21 @@ class UseCase
         )
 
 
-  run_command: (app) =>
+  runCommand: (app) =>
 
-  add_to_desktop: (fullname,icon,run,x,y,uuid,options) ->
+  addToDesktop: (fullname,icon,run,x,y,uuid,options) ->
     desktop_object = new DesktopObject(fullname,icon,run,x,y,uuid,options)
     @desktop_objects.push(desktop_object)
     @storage.set('desktop_objects', @desktop_objects)
 
-  remove_desktop_object: (uuid) ->
+  removeDesktopObject: (uuid) ->
     for desktop_object in @desktop_objects
+        console.log desktop_object.uuid #uncomment for jasmine
       if "#{desktop_object.uuid}" == "#{uuid}"
         @desktop_objects.remove(desktop_object)
     @storage.set('desktop_objects', @desktop_objects)
 
-  desktop_object_move: (uuid,x,y) ->
+  desktopObjectMove: (uuid,x,y) ->
     for desktop_object in @desktop_objects
       if "#{desktop_object.uuid}" == "#{uuid}"
         desktop_object.x = x
@@ -162,20 +180,20 @@ class UseCase
 
 class Glue
   constructor: (@useCase, @gui, @storage,  @backend,@app)->
-    Before(@useCase, 'start', => @gui.render_desk())
-    Before(@app, 'app_add', (name,app,options) => @gui.dock_append(name,app,options))
-    Before(@backend, 'fetch_app', (app) => @gui.log_fetch_app(app))
-    Before(@gui, 'add_to_desktop', (fullname,icon,run,x,y,uuid,options) => @useCase.add_to_desktop(fullname,icon,run,x,y,uuid,options))
-    Before(@gui, 'remove_desktop_object', (uuid) => @useCase.remove_desktop_object(uuid))
+    Before(@useCase, 'start', => @gui.renderDesk())
+    Before(@app, 'appAdd', (name,app,options) => @gui.dockAppend(name,app,options))
+    Before(@backend, 'fetchApp', (app) => @gui.logFetchApp(app))
+    Before(@gui, 'addToDesktop', (fullname,icon,run,x,y,uuid,options) => @useCase.addToDesktop(fullname,icon,run,x,y,uuid,options))
+    Before(@gui, 'removeDesktopObject', (uuid) => @useCase.removeDesktopObject(uuid))
 
-    After(@gui, 'desktop_object_move_sync', (id,x,y) => @useCase.desktop_object_move(id,x,y))
-    After(@gui, 'render_desk', => @gui.show_loading())
-    After(@gui, 'render_desk', => @gui.set_bindings())
-    After(@useCase, 'start', => @backend.fetch_apps())
-    After(@gui, 'run_command', (app) => @useCase.run_command(app))
-    After(@useCase, 'run_command', => @gui.hide_run_dialog())
-    After(@useCase, 'run_command', (app) => @app.app_run(app))
-    After(@backend, 'fetch_apps', => @gui.hide_loading())
+    After(@gui, 'desktopObjectMoveSync', (id,x,y) => @useCase.desktopObjectMove(id,x,y))
+    After(@gui, 'renderDesk', => @gui.showLoading())
+    After(@gui, 'renderDesk', => @gui.setBindings())
+    After(@useCase, 'start', => @backend.fetchApps())
+    After(@gui, 'runCommand', (app) => @useCase.runCommand(app))
+    After(@useCase, 'runCommand', => @gui.hideRunDialog())
+    After(@useCase, 'runCommand', (app) => @app.appRun(app))
+    After(@backend, 'fetchApps', => @gui.hideLoading())
 
     LogAll(@useCase)
     LogAll(@gui)
@@ -183,65 +201,65 @@ class Glue
 class Gui
   constructor: (@templates) -> 
 
-  show_loading: ->
+  showLoading: ->
     $("#loading_box").fadeIn()
 
-  hide_loading: ->
+  hideLoading: ->
     $("#loading_box").fadeOut()
 
-  log_loading: (msg)->
+  logLoading: (msg)->
     $("#loading_box").append("<li>"+msg+"</li>")
 
-  log_fetch_app: (app) ->
-    @log_loading("Fetching app: "+app)
+  logFetchApp: (app) ->
+    @logLoading("Fetching app: "+app)
 
-  show_run_dialog: ->
+  showRunDialog: ->
     $("#run_dialog_form").fadeIn()
     $("#command").focus()
 
-  hide_run_dialog: ->
+  hideRunDialog: ->
     $("#run_dialog_form").fadeOut()
 
-  run_command: (cmd) =>
+  runCommand: (cmd) =>
 
-  dock_start: ->
+  dockStart: ->
     $('#dock').jqDock(window.CoffeeDesktop.dock_settings)
 
-  desktop_object_move: (e,ui) ->
+  desktopObjectMove: (e,ui) ->
     x=ui.position.left
     y= ui.position.top
     id = ui.helper[0].id.split("desktop_object_")[1]
-    @desktop_object_move_sync(id,x,y)
+    @desktopObjectMoveSync(id,x,y)
     
 
 
 
-  draw_desktop_object: (fullname,icon,run,x,y,uuid,options) ->
+  drawDesktopObject: (fullname,icon,run,x,y,uuid,options) ->
     options_html = false
     if options
       options_html =""
       options = eval("(#{options})");
       for option in Object.keys(options)
-        options_html = options_html.concat(@templates.list_object(option.replace(/\s+/g, '_'),option))
+        options_html = options_html.concat(@templates.list_object(option.replace(/\s+/g, '_'),option)) #Slug
       options_html= new Handlebars.SafeString(options_html)
     template = Handlebars.compile(@templates.desktop_object())
     data = {img: icon ,text:fullname, x:x, y:y, uuid:uuid, options:options_html}
-    $(template(data)).appendTo("#desktop_icons").draggable({stop: (e,u) => @desktop_object_move(e,u)}).dblclick( => @run_command(run)).bind("contextmenu", -> $(@).find('.dropdown-menu').show(1,-> $(@).addClass('popup'));)
+    $(template(data)).appendTo("#desktop_icons").draggable({stop: (e,u) => @desktopObjectMove(e,u)}).dblclick( => @runCommand(run)).bind("contextmenu", -> $(@).find('.dropdown-menu').show(1,-> $(@).addClass('popup'));)
     if options
       #console.log options
       for option in Object.keys(options)
-        $("#desktop_object_"+uuid+" .option_"+option.replace(/\s+/g, '_')).click(=> @run_command(options[option]))
-    $("#desktop_object_"+uuid+" .run_app_link").click(=> @run_command(run))
+        $("#desktop_object_"+uuid+" .option_"+option.replace(/\s+/g, '_')).click(=> @runCommand(options[option]))
+    $("#desktop_object_"+uuid+" .run_app_link").click(=> @runCommand(run))
 
 
 
 
-    $("#desktop_object_"+uuid+" .remove_link").click(=> @remove_desktop_object(uuid))
+    $("#desktop_object_"+uuid+" .remove_link").click(=> @removeDesktopObject(uuid))
 
 
-  set_bindings: ->
+  setBindings: ->
     console.log("setting bindings")
-    @log_loading("setting bindings")
+    @logLoading("setting bindings")
     $("#desktop_icons").droppable({
       drop: (event, ui) =>
         uuid = UUIDjs.randomUI48()
@@ -252,19 +270,19 @@ class Gui
         options =  element.getAttribute('desktop_object_options')
         x = event.clientX
         y = event.clientY
-        @add_to_desktop(fullname,icon,run,x,y,uuid,options)
+        @addToDesktop(fullname,icon,run,x,y,uuid,options)
       accept: ".i_wanna_be_a_desktop_object"
       })
-    $(document).bind('keydown', 'alt+r', @show_run_dialog)
+    $(document).bind('keydown', 'alt+r', @showRunDialog)
     $('#run_dialog_form').submit( () =>
       app =$("#command").val()
       $("#command").val("")
-      @run_command(app)
+      @runCommand(app)
       $('#command').blur()
       false
     )
 
-  dock_append: (name,app,options) ->
+  dockAppend: (name,app,options) ->
     uuid = UUIDjs.randomUI48()
     icon = app.icon
     icon = "app.png" if !icon
@@ -280,10 +298,10 @@ class Gui
 
     $('#dock').jqDock(window.CoffeeDesktop.dock_settings);
     $("#app"+uuid).click(() =>
-      @run_command(name)
+      @runCommand(name)
     )
 
-  render_desk: ->
+  renderDesk: ->
     window.oncontextmenu = => 
       $(".popup").hide().removeClass('popup')
       false
@@ -291,12 +309,13 @@ class Gui
       $(".popup").hide().removeClass('popup')
     $(CoffeeDesktop_element).append(@templates.desktop())
 
-  remove_desktop_object: (uuid) ->
+  removeDesktopObject: (uuid) ->
     $("#desktop_object_"+uuid).remove()
   #aop shit
-  desktop_object_move_sync: (id,x,y) ->
-  add_to_desktop: (fullname,icon,run,x,y,uuid,options) ->
-    @draw_desktop_object(fullname,icon,run,x,y,uuid,options)
+  desktopObjectMoveSync: (id,x,y) ->
+  addToDesktop: (fullname,icon,run,x,y,uuid,options) ->
+    #prevent endless loop between usecase and gui
+    @drawDesktopObject(fullname,icon,run,x,y,uuid,options)
 
 
 class Notes
@@ -304,28 +323,29 @@ class Notes
     @notes = []
 
 
-  addnote: (options) ->
+  addNote: (options) ->
       unique_id = $.gritter.add(options)
 
 
 
 class @CoffeeDesktopApp
+  #This is just online status sketch ...
   state = "online"
-  get_state: ->
+  getState: ->
     state
-  set_state: (i) ->
+  setState: (i) ->
     #0 online 1 offline
     if i
       state="offline"
     else
       state="online"
 
-  app_add: (name,app,options) ->
+  appAdd: (name,app,options) ->
     console.log("adding "+name)
     @app[name] = app
     @apps.add(name)
 
-  app_run: (app) ->
+  appRun: (app) ->
     console.log("starting "+app)
     @process_id+=1
     if app.split(" ").length > 1
@@ -355,6 +375,14 @@ class @CoffeeDesktopApp
     glue         = new Glue(useCase, gui, localStorage, @backend,this)
     useCase.start()
 
+
+#jasmine shit
+window.coffeedesktop = {}
+window.coffeedesktop.UseCase = UseCase
+window.coffeedesktop.Gui = Gui
+window.coffeedesktop.Templates = Templates
+window.coffeedesktop.DesktopObject = DesktopObject
+window.coffeedesktop.CoffeeDesktopApp = CoffeeDesktopApp
 
 
 jQuery.extend({

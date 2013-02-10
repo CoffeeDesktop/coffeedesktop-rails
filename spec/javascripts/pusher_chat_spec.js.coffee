@@ -12,9 +12,9 @@ describe "Pusher_chat", ->
 			expect(pusher_chat.PusherChatApp.description).not.toEqual("")
 
 
-	it "UseCase can be created", ->
-		usecase = new pusher_chat.UseCase()
-		expect(usecase).toBeDefined()
+		it "UseCase can be created", ->
+			usecase = new pusher_chat.UseCase()
+			expect(usecase).toBeDefined()
 	describe "UseCase", ->
 		beforeEach ->
 			stubMethod = (obj, method) =>
@@ -23,31 +23,31 @@ describe "Pusher_chat", ->
 				spyOn(obj, method)
 
 			@fakeBackend = @fakeGui = {}
-			stubMethod(@fakeBackend, 'post_data')
-			stubMethod(@fakeGui, 'set_chat_window_content')
-			stubMethod(@fakeGui, 'append_msg')
+			stubMethod(@fakeBackend, 'postData')
+			stubMethod(@fakeGui, 'setChatWindowContent')
+			stubMethod(@fakeGui, 'appendMsg')
 
 			@usecase = new pusher_chat.UseCase(@fakeGui, @fakeBackend)
 
-		it "start_chat sets windows content", ->
-			@usecase.start_chat("testUser")
-			expect(@fakeGui.set_chat_window_content).toHaveBeenCalled()
+		it "startChat sets windows content", ->
+			@usecase.startChat("testUser")
+			expect(@fakeGui.setChatWindowContent).toHaveBeenCalled()
 
-		it "send_msg sends message", ->
-			@usecase.start_chat("testUser")
-			@usecase.send_msg("ohai")
-			expect(@fakeBackend.post_data).toHaveBeenCalledWith({nick: 'testUser', msg: 'ohai'})
+		it "sendMsg sends message", ->
+			@usecase.startChat("testUser")
+			@usecase.sendMsg("ohai")
+			expect(@fakeBackend.postData).toHaveBeenCalledWith({nick: 'testUser', msg: 'ohai'})
 
 		it "new message is appended", ->
-			@usecase.start_chat("testUser")
-			@usecase.new_msg_received({nick: 'foo', msg: "hello", date: '123'})
-			expect(@fakeGui.append_msg).toHaveBeenCalledWith('foo', 'hello', '123')
+			@usecase.startChat("testUser")
+			@usecase.newMsgReceived({nick: 'foo', msg: "hello", date: '123'})
+			expect(@fakeGui.appendMsg).toHaveBeenCalledWith('foo', 'hello', '123')
 
 	describe "Gui", ->
 		beforeEach ->
 			@templates = new pusher_chat.Templates()
 			@gui = new pusher_chat.Gui(@templates)
-			@gui.create_window('test', 'main')
+			@gui.createWindow('test', 'main')
 			@window_element = $("##{@gui.div_id}")
 
 		afterEach ->
@@ -62,12 +62,12 @@ describe "Pusher_chat", ->
 
 		it 'should change window content' , ->
 			window_content = @window_element.find(".window-content")
-			@gui.set_chat_window_content()
+			@gui.setChatWindowContent()
 			expect(@window_element.find("#chat_window")).toExist()
 
 		it 'chat_window should have bindings' , ->
 			window_content = @window_element.find(".window-content")
-			@gui.set_chat_window_content()
+			@gui.setChatWindowContent()
 			form = window_content.find("#msg_input")
 			expect(form).toHandle("submit")
 

@@ -28,7 +28,7 @@ class Templates
 class Backend 
   constructor: () ->
 
-  post_data: (data) ->
+  postData: (data) ->
     $.post("/coffeedesktop/pch_post", data );
 
 class PusherAdapter 
@@ -49,52 +49,52 @@ class UseCase extends @UseCaseClass
   constructor: (@gui, @backend) ->
     super
 
-  send_msg: (msg) ->
-    @backend.post_data({'nick':@nick, 'msg',msg})
+  sendMsg: (msg) ->
+    @backend.postData({'nick':@nick, 'msg',msg})
 
-  start_chat: (@nick) ->
-    @gui.set_chat_window_content()
+  startChat: (@nick) ->
+    @gui.setChatWindowContent()
 
-  new_msg_received:(data) -> 
-    @gui.append_msg(data.nick, data.msg, data.date)
+  newMsgReceived:(data) -> 
+    @gui.appendMsg(data.nick, data.msg, data.date)
 
 class Glue extends @GlueClass
   constructor:  (@useCase, @gui, @storage, @app, @pusher) ->
     super
-    After(@gui, 'start_chat', (nick) => @useCase.start_chat(nick))
-    After(@gui, 'send_msg', (msg) => @useCase.send_msg(msg))
-    After(@pusher, 'update', (data) => @useCase.new_msg_received(data))
+    After(@gui, 'startChat', (nick) => @useCase.startChat(nick))
+    After(@gui, 'sendMsg', (msg) => @useCase.sendMsg(msg))
+    After(@pusher, 'update', (data) => @useCase.newMsgReceived(data))
     #LogAll(@useCase)
     #LogAll(@gui)
 
 class Gui extends @GuiClass
-  set_chat_window_content: () ->
+  setChatWindowContent: () ->
     $.updateWindowContent(@div_id, @templates.chat_window());
-    @set_chat_bindings()
+    @setChatBindings()
 
-  set_bindings: ->
+  setBindings: ->
     $("#"+ @div_id+ " #nick_form").submit( () =>
       nick = $("#"+ @div_id+ " #nick").val()
-      @start_chat(nick)
+      @startChat(nick)
       false
     )
 
-  set_chat_bindings: () ->
+  setChatBindings: () ->
     msg_element = @element.find("#msg_input")
     msg_input = msg_element.find("#msg")
     msg_element.submit( () =>
       msg = msg_input.val()
-      @send_msg(msg)
+      @sendMsg(msg)
       msg_input.val("")
       false
     )
 
-  append_msg: (nick, msg, date) ->
+  appendMsg: (nick, msg, date) ->
     $("#"+@div_id+ " #chat").append("<span><b>"+nick+"</b>(@"+date+"): "+msg+"<hr>")
 
   #aop shit
-  send_msg: (msg) ->
-  start_chat: (nick) ->
+  sendMsg: (msg) ->
+  startChat: (nick) ->
 
 
 class @PusherChatApp
@@ -124,4 +124,4 @@ window.pusher_chat.Templates = Templates
 window.pusher_chat.PusherChatApp = PusherChatApp
 
 
-window.CoffeeDesktop.app_add('pch',@PusherChatApp)
+window.CoffeeDesktop.appAdd('pch',@PusherChatApp)
