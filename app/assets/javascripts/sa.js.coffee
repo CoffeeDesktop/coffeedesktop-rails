@@ -113,7 +113,8 @@ class Gui extends @GuiClass
     $.updateWindowContent(div_id,@templates[template]())
     if template == "main"
       @div_id = div_id
-      @element = $("##{@div_id}")    
+      @element = $("##{@div_id}")   
+      $("##{div_id} .window-closeButton").click( =>@closeAllChildWindows()) 
     else
       @registerWindow(div_id)
       $("##{div_id} .window-closeButton").click( =>@removeWindow(div_id))
@@ -181,7 +182,7 @@ class Gui extends @GuiClass
     
     
 
-class Glue extends @GlueClass
+class Glue extends  @GlueClass
   constructor:  (@useCase, @gui, @storage, @app, @backend) ->
     After(@gui, 'registerWindow', (id) => @useCase.registerWindow(id))
     After(@gui, 'closeAllChildWindows', => @useCase.closeAllChildWindows())
