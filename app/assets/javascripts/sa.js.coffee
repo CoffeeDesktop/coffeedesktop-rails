@@ -8,40 +8,40 @@
 class Templates
   main: ->
     "<div id='tabs'>
-  <ul>
-    <li><a href='#tabs-1'>About</a></li>
-    <li><a href='#tabs-2'>Desktop Icons</a></li>
-    <li><a href='#tabs-3'>Notifications</a></li>
-    <li><a href='#tabs-4'>Child windows</a></li>
-  </ul>
-  <div id='tabs-1'>
-    <p>Hi, Welcome to sample application.</p>
-    <p>You can find here some examples what you can do with CoffeeDesktop!</p>
-    <p>Checkout other tabs!... NOW!</p>
-    <p>shoo...shoo go to other tabs and checkout cool features!</p>
-    </div>
-  <div id='tabs-2'>
-    <p>You can create awesome links with coffeedesktop ... just put objects in cart</p>
-    <p>This is example:</p>
-    <img src='/assets/icons/app.png' desktop_object_options='' desktop_object_run='sa link' desktop_object_fullname='SA Show hidden' desktop_object_icon='app.png' class=' i_wanna_be_a_desktop_object sa_drag_button'>DRAG THIS ON DESKTOP PLIZ
-  </div>
-  <div id='tabs-3'>
-    <p>You can do shiny awesome notifications with CoffeeDesktop... just puting json to CoffeeDesktop.notes.add(json) and have fun
-    <p style='text-align:center'><button class='notify_try_button'>TRY ME</button></p>
-    <p>Also there is notifications about network errors</p>
-    <p style='text-align:center'><button class='notify_error_try_button'>Send Something stupid</button></p>
+        <ul>
+          <li><a href='#tabs-1'>About</a></li>
+          <li><a href='#tabs-2'>Desktop Icons</a></li>
+          <li><a href='#tabs-3'>Notifications</a></li>
+          <li><a href='#tabs-4'>Child windows</a></li>
+        </ul>
+        <div id='tabs-1'>
+          <p>Hi, Welcome to sample application.</p>
+          <p>You can find here some examples what you can do with CoffeeDesktop!</p>
+          <p>Checkout other tabs!... NOW!</p>
+          <p>shoo...shoo go to other tabs and checkout cool features!</p>
+          </div>
+        <div id='tabs-2'>
+          <p>You can create awesome links with coffeedesktop ... just put objects in cart</p>
+          <p>This is example:</p>
+          <img src='/assets/icons/app.png' desktop_object_options='' desktop_object_run='sa link' desktop_object_fullname='SA Show hidden' desktop_object_icon='app.png' class=' i_wanna_be_a_desktop_object sa_drag_button'>DRAG THIS ON DESKTOP PLIZ
+        </div>
+        <div id='tabs-3'>
+          <p>You can do shiny awesome notifications with CoffeeDesktop... just puting json to CoffeeDesktop.notes.add(json) and have fun
+          <p style='text-align:center'><button class='notify_try_button'>TRY ME</button></p>
+          <p>Also there is notifications about network errors</p>
+          <p style='text-align:center'><button class='notify_error_try_button'>Send Something stupid</button></p>
 
-   
-  </div>
-  <div id='tabs-4'>
-    <p>You can open child windows for application
-    <p style='text-align:center'><button class='child_try_button'>TRY ME</button></p>
-    <p>Also application can control child windows</p>
-    <p style='text-align:center'><button class='close_all_childs_try_button'>Close all child windows</button></p>
-    <p>You Can even update child windows content<p> 
-    <p style='text-align:center'><button class='update_first_child_try_button'>Update First child</button></p>
-  </div>
-</div>"
+         
+        </div>
+        <div id='tabs-4'>
+          <p>You can open child windows for application
+          <p style='text-align:center'><button class='child_try_button'>TRY ME</button></p>
+          <p>Also application can control child windows</p>
+          <p style='text-align:center'><button class='close_all_childs_try_button'>Close all child windows</button></p>
+          <p>You Can even update child windows content<p> 
+          <p style='text-align:center'><button class='update_first_child_try_button'>Update First child</button></p>
+        </div>
+    </div>"
   secret: ->
     "YAY ... you just found secret link
     <img src='http://25.media.tumblr.com/tumblr_m9a3bqANob1retw4jo1_500.gif'>"
@@ -71,17 +71,14 @@ class UseCase extends @UseCaseClass
       
     registerWindow: (id) ->
       @windows.push(id)
-      console.log @windows
 
     closeAllChildWindows: =>
-      while @windows.length !=0
+      while @windows.length >0
         @gui.closeWindow(@windows[0])
-
 
     removeWindow: (window) =>
       if (@windows.indexOf(window)) > -1
         @windows.splice(@windows.indexOf(window), 1)
-
 
     updateFirstChildWindow: ->
       @gui.updateChild(@windows[0])
@@ -179,9 +176,6 @@ class Gui extends @GuiClass
   updateFirstChildWindow: ->
   removeWindow: (id) ->
 
-    
-    
-
 class Glue extends  @GlueClass
   constructor:  (@useCase, @gui, @storage, @app, @backend) ->
     After(@gui, 'registerWindow', (id) => @useCase.registerWindow(id))
@@ -217,5 +211,11 @@ class @SampleApp
     #                                                  ^ this this is this ugly this
 
     useCase.start(args)
+
+window.sa = {}
+window.sa.UseCase = UseCase
+window.sa.Gui = Gui
+window.sa.Templates = Templates
+window.sa.SampleApp = SampleApp
 
 window.CoffeeDesktop.appAdd('sa',@SampleApp, '{"Im not a secret button":"sa secret"}')
