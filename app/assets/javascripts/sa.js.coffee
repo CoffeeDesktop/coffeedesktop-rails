@@ -83,6 +83,9 @@ class UseCase extends @UseCaseClass
     updateFirstChildWindow: ->
       @gui.updateChild(@windows[0])
 
+    exitSignal: ->
+      @gui.closeMainWindow()
+
     start: (args) =>
       switch 
         when /secret/i.test(args)
@@ -99,6 +102,8 @@ class UseCase extends @UseCaseClass
         else
           @gui.createWindow("Sample Application","main")
 
+
+
 class Gui extends @GuiClass
   constructor: (@templates) -> 
 
@@ -108,7 +113,7 @@ class Gui extends @GuiClass
     div_id = id+"-"+rand
     $.newWindow({id:div_id,title:title,width:500,height:350})
     $.updateWindowContent(div_id,@templates[template]())
-    if template == "main"
+    if template == "main" | template == "secret"
       @div_id = div_id
       @element = $("##{@div_id}")   
       $("##{div_id} .window-closeButton").click( =>
@@ -144,6 +149,8 @@ class Gui extends @GuiClass
           image: 'http://24.media.tumblr.com/avatar_cebb9d5a6d1d_128.png'
         }
         CoffeeDesktop.notes.addNote(options)
+        $("##{div_id} .window-titleBar-content")[0].innerHTML = "Changed Title too"
+        $("##{div_id} .window-titleBar-content").trigger('contentchanged');
         )
       $( "##{div_id} .notify_error_try_button").click( => @sendStupidPost())
       $( "##{div_id} .child_try_button").click( => @openChildWindow())
@@ -167,7 +174,8 @@ class Gui extends @GuiClass
         CoffeeDesktop.notes.addNote(options)
         )
     
-
+  closeMainWindow: ->
+    $("##{@div_id} .window-closeButton").click()
 
   openChildWindow: ->
     @createWindow("Child window","childwindow")
@@ -188,6 +196,7 @@ class Glue extends  @GlueClass
     After(@gui, 'removeWindow', (id) => @useCase.removeWindow(id))
     After(@gui, 'sendStupidPost', => @backend.stupidPost()) # this is only once shortcut because it's stupid to do stupid post over usecase
     After(@gui, 'exitApp', => @app.exitApp())
+    After(@app, 'exitSignal', => @useCase.exitSignal())
 
 #    LogAll(@useCase)
 #    LogAll(@gui)
@@ -197,8 +206,13 @@ class @SampleApp
   description = "Oh ... you just read app description."
   @fullname = fullname
   @description = description
+
+  exitSignal: ->
+
   exitApp: ->
     CoffeeDesktop.processKill(@id) 
+  getDivID: ->
+    @gui.div_id
   constructor: (@id, args) ->
     console.log("OH COOL ... I have just recived new shining fucks to take") if args
     @fullname = fullname
@@ -206,14 +220,14 @@ class @SampleApp
 
     templates    = new Templates()
     backend    = new Backend()
-    gui          = new Gui(templates)
-    useCase      = new UseCase(gui)
+    @gui          = new Gui(templates)
+    useCase      = new UseCase(@gui)
 
 
     localStorage = new LocalStorage("CoffeeDesktop")
     
     #probably this under this line is temporary this because this isnt on the path of truth
-    glue         = new Glue(useCase, gui, localStorage,this,backend)
+    glue         = new Glue(useCase, @gui, localStorage,this,backend)
     #                                                  ^ this this is this ugly this
 
     useCase.start(args)

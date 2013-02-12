@@ -47,7 +47,7 @@ class Templates
          <li class='divider'></li> 
         <li><a tabindex='-1' class='run_app_link' href='#'>Open New Instance</a></li>
         <li class='divider'></li>
-        <li><a tabindex='-1' class='remove_link'>Close All</a></li>
+        <li><a tabindex='-1' class='close_all_link'>Close All</a></li>
       </ul></li>      "
 
 
@@ -151,8 +151,12 @@ class DesktopProcess
   constructor: (@id,@name,@app) ->
 
 class UseCase
-  constructor: (@storage,@gui) ->
+  constructor: (@storage,@gui,@templates) ->
     @desktop_objects =  @storage.getDesktopObjects()
+    @apps = new Array()
+    @app = {}
+    @processes = []
+    @process_id = 0
 
   start: =>
     for desktop_object in @desktop_objects
@@ -168,6 +172,9 @@ class UseCase
 
 
   runCommand: (app) =>
+    @runApp(app)
+    @gui.hideRunDialog()
+
 
   addToDesktop: (fullname,icon,run,x,y,uuid,options) ->
     desktop_object = new DesktopObject(fullname,icon,run,x,y,uuid,options)
@@ -188,6 +195,54 @@ class UseCase
         desktop_object.y = y
     @storage.set('desktop_objects', @desktop_objects)
 
+  getProcessByID: (id) ->
+    for process in @processes
+      if "#{process.id}" == "#{id}"
+        return process
+        
+  getProcessByName: (name) ->
+    for process in @processes
+      if "#{process.name}" == "#{name}"
+        return process
+
+  addApp: (name,app,options) ->
+    console.log("adding "+name)
+    @app[name] = app
+    @apps.add(name)
+
+  runApp: (app) ->
+    console.log("starting "+app)
+    @process_id+=1
+    if app.split(" ").length > 1
+      console.log("oh cool we have some fucks to give")
+      args = app.split(" ")
+      name = args.shift()
+      process = new @app[name](@process_id,args)
+    else
+      process= new @app[app](@process_id)
+      name = app
+    process = new DesktopProcess(@process_id,name,process)
+    @gui.appendContextMenu(name) if !@getProcessByName(name)
+    @processes.push(process)
+    @gui.pushAppToAppList(process.app.getDivID(),process.id,name)
+    @gui.effectAfterRun(name)
+
+  closeAllApps: (name) ->
+    while @getProcessByName(name)
+      @sendSignalToKill(@getProcessByName(name).id)
+
+  sendSignalToKill: (id) ->
+    @getProcessByID(id).app.exitSignal()
+
+  killProcess: (id) ->
+    console.log "Killing #{id}"
+    process = @getProcessByID(id)
+    name = process.name
+    if (@processes.indexOf(process)) > -1
+      @processes.splice(@processes.indexOf(process), 1)
+    @gui.markUnRunningApp(name) if !@getProcessByName(name)
+      
+
 class Glue
   constructor: (@useCase, @gui, @storage,  @backend,@app)->
     Before(@useCase, 'start', => @gui.renderDesk())
@@ -199,11 +254,14 @@ class Glue
     After(@gui, 'desktopObjectMoveSync', (id,x,y) => @useCase.desktopObjectMove(id,x,y))
     After(@gui, 'renderDesk', => @gui.showLoading())
     After(@gui, 'renderDesk', => @gui.setBindings())
+    After(@gui, 'runApp', (name)=> @useCase.runApp(name))
+    After(@gui, 'closeAllApps', (name)=> @useCase.closeAllApps(name))
     After(@useCase, 'start', => @backend.fetchApps())
     After(@gui, 'runCommand', (app) => @useCase.runCommand(app))
-    After(@useCase, 'runCommand', => @gui.hideRunDialog())
-    After(@useCase, 'runCommand', (app) => @app.appRun(app))
     After(@backend, 'fetchApps', => @gui.hideLoading())
+    After(@app, 'appAdd', (name,app,options) => @useCase.addApp(name,app,options) )
+    After(@app, 'appRun', (app) => @useCase.runApp(app) )
+    After(@app, 'processKill', (id) => @useCase.killProcess(id) )
 
     LogAll(@useCase)
     LogAll(@gui)
@@ -230,8 +288,6 @@ class Gui
   hideRunDialog: ->
     $("#run_dialog_form").fadeOut()
 
-  runCommand: (cmd) =>
-
   dockStart: ->
     $('#dock').jqDock(window.CoffeeDesktop.dock_settings)
 
@@ -240,9 +296,6 @@ class Gui
     y= ui.position.top
     id = ui.helper[0].id.split("desktop_object_")[1]
     @desktopObjectMoveSync(id,x,y)
-    
-
-
 
   drawDesktopObject: (fullname,icon,run,x,y,uuid,options) ->
     options_html = false
@@ -265,7 +318,6 @@ class Gui
 
 
     $("#desktop_object_"+uuid+" .remove_link").click(=> @removeDesktopObject(uuid))
-
 
   setBindings: ->
     console.log("setting bindings")
@@ -321,8 +373,36 @@ class Gui
 
   removeDesktopObject: (uuid) ->
     $("#desktop_object_"+uuid).remove()
+
+  appendContextMenu: (name) ->
+    element = $(@templates.dock_drop_up()).appendTo($(".app_#{name}").parent())
+    element.find(".run_app_link").click(=> @runApp(name))
+    element.find(".close_all_link").click(=> @closeAllApps(name))
+
+    $(".app_#{name}").addClass('running_app')
+    $(".app_#{name}").bind("contextmenu", -> $(@).parent().find('.dropdown-menu').show(1,-> $(@).addClass('popup')))
+
+  pushAppToAppList: (div_id,id,name) ->
+    title = $("##{div_id} .window-titleBar-content")[0].innerHTML
+    $("##{div_id} .window-titleBar-content").bind('contentchanged', ->
+      title = $("##{div_id} .window-titleBar-content")[0].innerHTML
+      $("#process_title_#{id}")[0].innerHTML = title
+    )
+    $("<li><a id='process_title_#{id}' tabindex='-1' class='run_app_link' href='#'>#{id} - #{title}</a></li>").appendTo($($(".app_#{name}").parent().find(".dropup .divider")[0]).prev())
+
+  effectAfterRun: (name) ->
+    $(".app_#{name}").effect("bounce", { times:3 }, 500)
+
+  markUnRunningApp: (name) ->
+    $(".app_#{name}").parent().find('.dropdown-menu').remove()
+    $(".app_#{name}").removeClass('running_app')
+
+
   #aop shit
   desktopObjectMoveSync: (id,x,y) ->
+  runApp: (name) ->
+  closeAllApps: (name) ->
+  runCommand: (cmd) ->
   addToDesktop: (fullname,icon,run,x,y,uuid,options) ->
     #prevent endless loop between usecase and gui
     @drawDesktopObject(fullname,icon,run,x,y,uuid,options)
@@ -348,59 +428,19 @@ class @CoffeeDesktopApp
       state="online"
 
   appAdd: (name,app,options) ->
-    console.log("adding "+name)
-    @app[name] = app
-    @apps.add(name)
-
   
   appRun: (app) ->
-    console.log("starting "+app)
-    @process_id+=1
-    if app.split(" ").length > 1
-      console.log("oh cool we have some fucks to give")
-      args = app.split(" ")
-      name = args.shift()
-      process = new @app[name](@process_id,args)
-    else
-      process= new @app[app](@process_id)
-      name = app
-    @processes.push(new DesktopProcess(@process_id,name,process))  
-    $(".app_#{name}").parent().append(@templates.dock_drop_up())
-    $(".app_#{name}").effect("bounce", { times:3 }, 500)
-    $(".app_#{name}").addClass('running_app')
-    console.log @templates.dock_drop_up()
-    $(".app_#{name}").bind("contextmenu", -> $(@).parent().find('.dropdown-menu').show(1,-> $(@).addClass('popup')))
   
-  getProcessByID: (id) ->
-    for process in @processes
-      if "#{process.id}" == "#{id}"
-        return process
-
-
   processKill: (id) ->
-    console.log "Killing #{id}"
-    process = @getProcessByID(id)
-    if (@processes.indexOf(process)) > -1
-      @processes.splice(@processes.indexOf(process), 1)
-    still_exist = 0
-    name = process.name
-    for process in @processes
-      if "#{process.name}" == "#{name}"
-        still_exist = 1
-    if !still_exist
-      $(".app_#{name}").removeClass('running_app')
+
 
   constructor: (@element="body") ->
-    @apps = new Array()
-    @app = {}
-    @processes = []
-    @process_id = 0
     @dock_settings =   {labels: 'tc'}
     @notes = new Notes()
-    @templates    = new Templates()
+    templates    = new Templates()
     localStorage = new LocalStorage("CoffeeDesktop")
-    gui          = new Gui(@templates)
-    useCase      = new UseCase(localStorage,gui)
+    gui          = new Gui(templates)
+    useCase      = new UseCase(localStorage,gui,templates)
     templates    = new Templates()
     
     
