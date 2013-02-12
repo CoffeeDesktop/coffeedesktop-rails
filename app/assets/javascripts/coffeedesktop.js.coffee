@@ -388,7 +388,7 @@ class Gui
       title = $("##{div_id} .window-titleBar-content")[0].innerHTML
       $("#process_title_#{id}")[0].innerHTML = title
     )
-    $("<li><a id='process_title_#{id}' tabindex='-1' class='run_app_link' href='#'>#{id} - #{title}</a></li>").appendTo($($(".app_#{name}").parent().find(".dropup .divider")[0]).prev())
+    $("<li><a id='process_title_#{id}' tabindex='-1' class='run_app_link' href='#'>#{id} - #{title}</a></li>").appendTo($($(".app_#{name}").parent().find(".dropup .divider")[0]).prev()).click(=> $.minimizeWindow div_id)
 
   effectAfterRun: (name) ->
     $(".app_#{name}").effect("bounce", { times:3 }, 500)
