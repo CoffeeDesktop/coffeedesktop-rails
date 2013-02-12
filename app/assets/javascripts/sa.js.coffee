@@ -111,7 +111,10 @@ class Gui extends @GuiClass
     if template == "main"
       @div_id = div_id
       @element = $("##{@div_id}")   
-      $("##{div_id} .window-closeButton").click( =>@closeAllChildWindows()) 
+      $("##{div_id} .window-closeButton").click( =>
+        @exitApp()
+        @closeAllChildWindows()
+      ) 
     else
       @registerWindow(div_id)
       $("##{div_id} .window-closeButton").click( =>@removeWindow(div_id))
@@ -175,6 +178,7 @@ class Gui extends @GuiClass
   closeAllChildWindows: ->
   updateFirstChildWindow: ->
   removeWindow: (id) ->
+  exitApp: ->
 
 class Glue extends  @GlueClass
   constructor:  (@useCase, @gui, @storage, @app, @backend) ->
@@ -183,6 +187,7 @@ class Glue extends  @GlueClass
     After(@gui, 'updateFirstChildWindow', => @useCase.updateFirstChildWindow())
     After(@gui, 'removeWindow', (id) => @useCase.removeWindow(id))
     After(@gui, 'sendStupidPost', => @backend.stupidPost()) # this is only once shortcut because it's stupid to do stupid post over usecase
+    After(@gui, 'exitApp', => @app.exitApp())
 
 #    LogAll(@useCase)
 #    LogAll(@gui)
@@ -191,10 +196,11 @@ class @SampleApp
   fullname = "Sample Application"
   description = "Oh ... you just read app description."
   @fullname = fullname
-  @description = description 
-  constructor: (id, args) ->
+  @description = description
+  exitApp: ->
+    CoffeeDesktop.processKill(@id) 
+  constructor: (@id, args) ->
     console.log("OH COOL ... I have just recived new shining fucks to take") if args
-    @id = id
     @fullname = fullname
     @description = description
 

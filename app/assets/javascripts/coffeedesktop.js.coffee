@@ -13,15 +13,16 @@
 #= require YouAreDaBomb
 #= require utils
 class Templates
-  desktop: ->"<div id='desktop' class='container'>
+  desktop: ->
+    "<div id='desktop' class='container'>
       <div id='loading_box'><h3>Loading CoffeeDesktop..</h3></div>
-  <form id='run_dialog_form'><input type='text' id='command'></form>
-  <div id='desktop_icons'></div>
-  <ul id='dock' style='display:none'>
-  </ul>
+      <form id='run_dialog_form'><input type='text' id='command'></form>
+      <div id='desktop_icons'></div>
+      <ul id='dock' style='display:none'>
+      </ul>
     </div>"
   list_object: (tag,label) ->
-    "<li><a tabindex='-1' class='option_"+tag+"'>"+label+"</a></li>"
+    "<li><a tabindex='-1' class='option_#{tag}'>#{label}</a></li>"
   desktop_object: ->
     "<div id='desktop_object_{{uuid}}' class='desktop_object' style='left:{{x}}px;top:{{y}}px'>
       <img style='width:48px;'' src='/assets/icons/{{img}}'>
@@ -39,7 +40,15 @@ class Templates
       </div>       
       "
   dock_object: (uuid,icon,fullname,name,options) ->
-    "<li ><img  id='app"+uuid+"' src='/assets/icons/"+icon+"' alt='"+fullname+"' title='"+fullname+"' desktop_object_options='"+options+"'' desktop_object_run='"+name+"' desktop_object_fullname='"+fullname+"' desktop_object_icon='"+icon+"' class='dockItem i_wanna_be_a_desktop_object dock_app' /></li>"
+    "<li ><img  id='app#{uuid}' src='/assets/icons/#{icon}' alt='#{fullname}' title='#{fullname}' desktop_object_options='#{options}' desktop_object_run='#{name}' desktop_object_fullname='#{fullname}' desktop_object_icon='#{icon}' class='dockItem i_wanna_be_a_desktop_object dock_app app_#{name}' />"
+  dock_drop_up: ->
+         "<ul class='dropup dropdown-menu' role='menu' aria-labelledby='drop2'>
+          <li></li>
+         <li class='divider'></li> 
+        <li><a tabindex='-1' class='run_app_link' href='#'>Open New Instance</a></li>
+        <li class='divider'></li>
+        <li><a tabindex='-1' class='remove_link'>Close All</a></li>
+      </ul></li>      "
 
 
 class Request
@@ -138,6 +147,9 @@ class LocalStorage
 class DesktopObject
   constructor: (@fullname,@icon,@run,@x,@y,@uuid,@options) ->
 
+class DesktopProcess
+  constructor: (@id,@name,@app) ->
+
 class UseCase
   constructor: (@storage,@gui) ->
     @desktop_objects =  @storage.getDesktopObjects()
@@ -175,8 +187,6 @@ class UseCase
         desktop_object.x = x
         desktop_object.y = y
     @storage.set('desktop_objects', @desktop_objects)
-
-
 
 class Glue
   constructor: (@useCase, @gui, @storage,  @backend,@app)->
@@ -317,7 +327,6 @@ class Gui
     #prevent endless loop between usecase and gui
     @drawDesktopObject(fullname,icon,run,x,y,uuid,options)
 
-
 class Notes
   constructor:  ->
     @notes = []
@@ -325,8 +334,6 @@ class Notes
 
   addNote: (options) ->
       unique_id = $.gritter.add(options)
-
-
 
 class @CoffeeDesktopApp
   #This is just online status sketch ...
@@ -345,6 +352,7 @@ class @CoffeeDesktopApp
     @app[name] = app
     @apps.add(name)
 
+  
   appRun: (app) ->
     console.log("starting "+app)
     @process_id+=1
@@ -352,20 +360,46 @@ class @CoffeeDesktopApp
       console.log("oh cool we have some fucks to give")
       args = app.split(" ")
       name = args.shift()
-      @process[@process_id] = new @app[name](@process_id,args)
+      process = new @app[name](@process_id,args)
     else
-      @process[@process_id] = new @app[app](@process_id)
+      process= new @app[app](@process_id)
+      name = app
+    @processes.push(new DesktopProcess(@process_id,name,process))  
+    $(".app_#{name}").parent().append(@templates.dock_drop_up())
+    $(".app_#{name}").effect("bounce", { times:3 }, 500)
+    $(".app_#{name}").addClass('running_app')
+    console.log @templates.dock_drop_up()
+    $(".app_#{name}").bind("contextmenu", -> $(@).parent().find('.dropdown-menu').show(1,-> $(@).addClass('popup')))
+  
+  getProcessByID: (id) ->
+    for process in @processes
+      if "#{process.id}" == "#{id}"
+        return process
+
+
+  processKill: (id) ->
+    console.log "Killing #{id}"
+    process = @getProcessByID(id)
+    if (@processes.indexOf(process)) > -1
+      @processes.splice(@processes.indexOf(process), 1)
+    still_exist = 0
+    name = process.name
+    for process in @processes
+      if "#{process.name}" == "#{name}"
+        still_exist = 1
+    if !still_exist
+      $(".app_#{name}").removeClass('running_app')
 
   constructor: (@element="body") ->
     @apps = new Array()
     @app = {}
-    @process = {}
+    @processes = []
     @process_id = 0
     @dock_settings =   {labels: 'tc'}
     @notes = new Notes()
-    templates    = new Templates()
+    @templates    = new Templates()
     localStorage = new LocalStorage("CoffeeDesktop")
-    gui          = new Gui(templates)
+    gui          = new Gui(@templates)
     useCase      = new UseCase(localStorage,gui)
     templates    = new Templates()
     

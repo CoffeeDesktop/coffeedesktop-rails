@@ -254,11 +254,13 @@ jQuery.extend({
             if ($obj.data("state") === "minimized") {
                 $obj.data("state", "normal");
                 $obj.css("height", $obj.data("lastHeight"));
-                $obj.find(".window-content").slideToggle("slow");
+                //$obj.find(".window-content").slideToggle("slow");
+                $obj.fadeToggle("slow");
             }
             else if ($obj.data("state") === "normal") {
                 $obj.data("state", "minimized");
-                $obj.find(".window-content").slideToggle("slow", function() { $obj.css("height", 0); });
+                //$obj.find(".window-content").slideToggle("slow", function() { $obj.css("height", 0); });
+                $obj.fadeToggle("slow", function() { $obj.css("height", 0); });
             }
             else {
                 $obj.find(".window-maximizeButton").click();

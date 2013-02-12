@@ -2837,6 +2837,11 @@ table th[class*="span"],
   background-position: -456px -144px;
 }
 
+.dropup {
+  bottom: 100%;
+  top:auto !important;
+}
+
 .dropup,
 .dropdown {
   position: relative;
@@ -2984,8 +2989,7 @@ table th[class*="span"],
 
 .dropup .dropdown-menu,
 .navbar-fixed-bottom .dropdown .dropdown-menu {
-  top: auto;
-  bottom: 100%;
+
   margin-bottom: 1px;
 }
 
@@ -4640,7 +4644,20 @@ input[type="submit"].btn.btn-mini {
   border-left: 6px solid transparent;
   content: '';
 }
+.dropup::before {
 
+bottom: -7px !important;
+top:auto !important;
+border-bottom: 0 !important;
+border-top: 7px solid #cccccc !important;
+border-top-color: rgba(0, 0, 0, 0.2) ;
+}
+.dropup::after {
+top:auto !important;
+bottom: -6px !important;
+border-top: 6px solid white !important;
+border-bottom:0 !important;
+}
 .navbar-fixed-bottom .nav > li > .dropdown-menu:before {
   top: auto;
   bottom: -7px;
