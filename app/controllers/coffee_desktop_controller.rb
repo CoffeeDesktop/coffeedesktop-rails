@@ -6,7 +6,7 @@ class CoffeeDesktopController < ApplicationController
 	end
 
 	def apps
-		@apps = [ 'sa', 'ircgatewayapp', 'pusher_chat']
+		@apps = [ 'sa', 'ircgatewayapp', 'pusher_chat', 'oa']
 		render  :json => @apps
 	end
 

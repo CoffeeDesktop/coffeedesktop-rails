@@ -77,6 +77,7 @@ class Backend
       CoffeeDesktop.notes.addNote(options)
     , false);
     $( document ).ajaxError( (event, jqXHR, ajaxSettings, thrownError) =>
+      return if ajaxSettings.no_error
       if (jqXHR.status == 0) 
          msg = 'Not connect.\n Verify Network.'
       else if (jqXHR.status == 404) 
