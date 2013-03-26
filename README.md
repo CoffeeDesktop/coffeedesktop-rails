@@ -3,7 +3,7 @@ CoffeeDesktop-rails
 
 ### Warning
 This readme is probably out of date.
-check [9reyfox's blog](http://9reyfox.github.com) or follow [@matbaj](http://twitter.com/matbaj)
+check [matbaj's blog](http://matbaj.github.com) or follow [@matbaj](http://twitter.com/matbaj)
 
 It's just another awesome framework! :D
 oh ... maybe i will write something more later! :D
